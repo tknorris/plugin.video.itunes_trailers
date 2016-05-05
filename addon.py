@@ -53,7 +53,8 @@ def show_movies():
     )
     items = get_movies3(source, limit)
     finish_kwargs = {
-        'sort_methods': ['date', 'title', 'playlist_order']
+        'sort_methods': ['date', 'title', 'playlist_order'],
+        'cache_to_disc': False
     }
     return plugin.finish(items, **finish_kwargs)
 
@@ -147,6 +148,11 @@ def get_movies3(source, limit):
     items = [{
         'label': movie['title'],
         'thumbnail': movie['poster'],
+        'art': {
+            'thumbnail': movie['poster'],
+            'poster': movie['poster'],
+            'fanart': movie['background'],
+        },
         'info': {
             'count': i,
             'title': movie['title'],
