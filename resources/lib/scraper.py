@@ -134,18 +134,21 @@ class TrailerScraper(object):
         tree = self.__get_tree(self.TRAILERS_URL % location)
         for li in tree.findAll('li', {'class': re.compile('trailer')}):
             slug = li.find('h3').string.replace(' ', '').replace('-', '').lower()
-            playlist = self.__get_url(self.PLAY_LIST_URL % (location, slug))
-            trailer_url = re.search(self.RE_URL, playlist).group(1)
-            duration = int(re.search(self.RE_DURATION, playlist).group(1)) / 1000
-            trailer = {
-                'title': li.find('h3').string,
-                'date': '',
-                'duration': duration,
-                'thumb': __thumb(li.find('img')['src']),
-                'background': self.BACKGROUND_URL % location,
-                'urls': __trailer_urls(trailer_url)
-            }
-            yield trailer
+            try:
+                playlist = self.__get_url(self.PLAY_LIST_URL % (location, slug))
+                trailer_url = re.search(self.RE_URL, playlist).group(1)
+                duration = int(re.search(self.RE_DURATION, playlist).group(1)) / 1000
+                trailer = {
+                    'title': li.find('h3').string,
+                    'date': '',
+                    'duration': duration,
+                    'thumb': __thumb(li.find('img')['src']),
+                    'background': self.BACKGROUND_URL % location,
+                    'urls': __trailer_urls(trailer_url)
+                }
+                yield trailer
+            except NetworkError:
+                pass
 
     def __get_tree(self, url):
         return BeautifulSoup(self.__get_url(url))
@@ -157,7 +160,6 @@ class TrailerScraper(object):
         try:
             return urllib2.urlopen(req).read()
         except urllib2.HTTPError, error:
-            print error
             raise NetworkError('HTTPError: %s' % error)
 
 
